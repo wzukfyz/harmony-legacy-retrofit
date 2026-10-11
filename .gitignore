@@ -1,0 +1,4 @@
+# 项目专属 venv 与 Python 缓存（不入 git）
+.venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,55 @@
+# Copyright (c) 2026 HDU IoT Application Project
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+static_library("project") {
+    sources = [
+        "src/main.c",
+        "src/device/device_profile.c",
+        "src/device/profiles/profile_demo.c",
+        "src/device/profiles/profile_template.c",
+        "src/logic/alarm.c",
+        "src/protocol/modbus_rtu.c",
+        "src/report/mqtt_report.c",
+        "src/report/wifi_conn.c",
+
+        # 复用普中 BSP 的 Wi-Fi 与 MQTT 封装（依赖见下方 include_dirs）
+        "//vendor/pzkj/pz_hi3861/common/bsp/src/bsp_wifi.c",
+        "//vendor/pzkj/pz_hi3861/common/bsp/src/bsp_mqtt.c",
+
+        # paho.mqtt.embedded-c 的 MQTTPacket 协议栈（bsp_mqtt.c 依赖）
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTConnectClient.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTConnectServer.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTDeserializePublish.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTFormat.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTPacket.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTSerializePublish.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTSubscribeClient.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTSubscribeServer.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTUnsubscribeClient.c",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src/MQTTUnsubscribeServer.c",
+    ]
+
+    include_dirs = [
+        "include",
+        "src/device",
+        "src/logic",
+        "src/protocol",
+        "src/report",
+        "//foundation/communication/wifi_lite/interfaces/wifiservice",
+        "//third_party/paho.mqtt.embedded-c/MQTTPacket/src",
+        "//utils/native/lite/include",
+        "//kernel/liteos_m/kal/cmsis",
+        "//base/iot_hardware/peripheral/interfaces/kits",
+        "//vendor/pzkj/pz_hi3861/common/bsp/include",
+    ]
+}

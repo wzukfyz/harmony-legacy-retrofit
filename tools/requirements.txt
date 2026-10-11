@@ -1,0 +1,5 @@
+# PC-side dependencies for tools/ (Python 3.9, project venv: ..\.venv)
+pymodbus>=3,<4
+paho-mqtt>=2,<3
+pyserial>=3.5
+pyyaml>=6

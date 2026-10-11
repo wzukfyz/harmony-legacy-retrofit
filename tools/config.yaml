@@ -1,0 +1,37 @@
+# PC 侧（模拟器/看板）统一配置
+# 用法：modbus_sim/slave_rtu.py 与 mqtt/monitor.py 默认读取本文件
+# 环境：项目专属 venv（../.venv，Python 3.9），运行示例：
+#   ..\.venv\Scripts\python.exe modbus_sim\slave_rtu.py
+
+# 串口（USB-RS485 转接头；板卡到货后按设备管理器实际 COM 口修改）
+serial:
+  port: COM5
+  baudrate: 9600
+  parity: N
+  stopbits: 1
+
+# Modbus 从站模拟参数
+modbus:
+  mode: rtu          # rtu / tcp（板卡未到货也可先用 tcp 预演，见 slave_rtu.py 注释）
+  unit_id: 1
+  tcp:
+    host: 0.0.0.0
+    port: 5020
+
+# 寄存器初值（与 firmware/src/device/profiles/profile_demo.c 同步；
+# 映射定义见 ../docs/寄存器映射表.md）
+registers:
+  base_address: 0
+  initial_values: [235, 560, 1, 0, 0, 0, 0, 0]
+
+# 本地 Mosquitto Broker 与主题（broker 填 PC 在路由器下的局域网 IP，
+# 与 app_config.h 的 APP_MQTT_BROKER_IP 一致；Mosquitto 监听 0.0.0.0:1883）
+mqtt:
+  broker: 127.0.0.1
+  port: 1883
+  topic: iot/dev01/report
+  alarm_topic: iot/dev01/alarm
+
+# 看板阈值（与 firmware/src/device/profiles/profile_demo.c 的 alarm_max 保持一致）
+alarm:
+  value_max: 800
