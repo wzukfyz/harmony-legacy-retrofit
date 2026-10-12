@@ -14,7 +14,8 @@
 - **协议易适配**：协议层（`firmware/src/protocol/`）与设备层（`firmware/src/device/profiles/`）解耦。
   适配新设备 = 新增一个 profile 文件；接入新协议 = 新增一个 `ProtocolOps` 实现，业务代码零改动
 - **全链路可离线预演**：PC 侧 pymodbus 从站 + Mosquitto + 看板脚本，板卡未到货也能先跑协议
-- 精简固件骨架：Modbus RTU 主站（UART1）、Wi-Fi STA、MQTT 上报、阈值告警
+- **中央运维终端看板**：设备在线判定（15s 周期心跳）、点位实时刷新、告警高亮；无硬件时可用模拟数据源演示
+- 精简固件骨架：Modbus RTU 主站（UART1）、Wi-Fi STA、MQTT 上报、阈值告警、周期心跳
 
 ## 目录结构
 
@@ -32,7 +33,9 @@ src/project/
 ├── tools/                  # PC 侧工具（不参与固件编译）
 │   ├── config.yaml         # 串口 / Broker / 寄存器统一配置
 │   ├── modbus_sim/         # pymodbus 从站模拟器
-│   └── mqtt/               # MQTT 看板 / 告警订阅
+│   ├── mqtt/               # 轻量 MQTT 订阅工具
+│   ├── ops/                # 中央运维系统终端看板（正式交付）
+│   └── sim/                # 模拟板卡数据源（测试 / 演示资产）
 ├── docs/                   # 试行手册 / 协议适配指南 / 寄存器映射表
 └── 补充说明.md              # 工程外改动与构建注意（必读）
 ```
@@ -43,14 +46,21 @@ src/project/
 
 ```powershell
 cd src\project
-py -3.9 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r tools\requirements.txt
+py -3.9 -m venv .venv                    # 首次创建（已存在可跳过）
+.\.venv\Scripts\Activate.ps1             # 激活项目 venv，之后统一用 python
+python -m pip install -r tools\requirements.txt
 
 # Modbus 从站模拟器（先在 tools\config.yaml 填 USB-RS485 的 COM 口）
-.\.venv\Scripts\python.exe tools\modbus_sim\slave_rtu.py
-# MQTT 看板（本地 Mosquitto 监听 0.0.0.0:1883）
-.\.venv\Scripts\python.exe tools\mqtt\monitor.py
+python tools\modbus_sim\slave_rtu.py
+# MQTT 轻量订阅（快速查看原始报文）
+python tools\mqtt\monitor.py
+# 中央运维系统终端看板（设备在线 / 点位 / 告警实时刷新）
+python tools\ops\ops_console.py
+# 模拟板卡数据源（无板 / 无 485 演示；--alarm 触发告警）
+python tools\sim\sim_device.py --duration 60 --alarm
 ```
+
+> 激活报"禁止运行脚本"时，先执行一次：`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`（或改用 cmd 的 `.\.venv\Scripts\activate.bat`）。
 
 ### 板端（Hi3861）
 
@@ -63,6 +73,24 @@ features = [
 ```
 
 编辑 `firmware/include/app_config.h` 填 Wi-Fi / MQTT 参数后，用 DevEco 或 `hb build` 编译并烧录。
+
+## 自主测试（无需按 RST）
+
+设备上电后每 ~15s 自主心跳上报（`APP_HEARTBEAT_S` 可调，设 0 关闭），测试无需重放复位；
+看板「设备」表出现「● 在线」且心跳秒数递增即正常，超过 60s 未收到消息判离线。
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+
+# 1) 起运维看板：实时观察在线状态 / 点位 / 告警
+python tools\ops\ops_console.py
+# 2) 脚本化验收：运行 N 秒后输出一帧快照并退出（适合留档 / CI）
+python tools\ops\ops_console.py --snapshot 30
+# 3) 无硬件演示：模拟板卡数据源（boot + 心跳 + 点位 + 告警）
+python tools\sim\sim_device.py --duration 60 --alarm
+```
+
+详见 [初版试行手册 §6](docs/初版试行手册.md)。
 
 ## 硬件接线摘要（普中-Hi3861）
 

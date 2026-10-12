@@ -1,7 +1,7 @@
 # PC 侧（模拟器/看板）统一配置
 # 用法：modbus_sim/slave_rtu.py 与 mqtt/monitor.py 默认读取本文件
-# 环境：项目专属 venv（../.venv，Python 3.9），运行示例：
-#   ..\.venv\Scripts\python.exe modbus_sim\slave_rtu.py
+# 环境：项目专属 venv（../.venv，Python 3.9）；先激活（..\.venv\Scripts\Activate.ps1），再运行：
+#   python modbus_sim\slave_rtu.py
 
 # 串口（USB-RS485 转接头；板卡到货后按设备管理器实际 COM 口修改）
 serial:
@@ -27,7 +27,7 @@ registers:
 # 本地 Mosquitto Broker 与主题（broker 填 PC 在路由器下的局域网 IP，
 # 与 app_config.h 的 APP_MQTT_BROKER_IP 一致；Mosquitto 监听 0.0.0.0:1883）
 mqtt:
-  broker: 127.0.0.1
+  broker: 192.168.43.184
   port: 1883
   topic: iot/dev01/report
   alarm_topic: iot/dev01/alarm

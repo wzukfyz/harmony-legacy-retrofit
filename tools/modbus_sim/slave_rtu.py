@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Modbus RTU 从站模拟器（PC 侧）：模拟存量设备供 Hi3861 主机轮询。
 
-运行：..\.venv\Scripts\python.exe slave_rtu.py [config.yaml]   # 默认读取 ../config.yaml
+运行：先激活项目 venv（../.venv/Scripts/Activate.ps1），再 python slave_rtu.py [config.yaml]（默认读取 ../config.yaml）
 依赖：pymodbus>=3,<4  pyserial  pyyaml
 
 注：板卡未到货前，如需 TCP 预演，可参考 pymodbus 的 StartAsyncTcpServer

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """MQTT 看板/告警订阅端（PC 侧）：订阅板上报并打印，后续可扩展 Web 看板。
 
-运行：..\.venv\Scripts\python.exe monitor.py [config.yaml]     # 默认读取 ../config.yaml
+运行：先激活项目 venv（../.venv/Scripts/Activate.ps1），再 python monitor.py [config.yaml]（默认读取 ../config.yaml）
 依赖：paho-mqtt>=2,<3  pyyaml
 """
 
@@ -12,6 +12,9 @@ from pathlib import Path
 
 import yaml
 import paho.mqtt.client as mqtt
+
+# 行缓冲：作为后台任务/重定向运行时，保证日志实时可见
+sys.stdout.reconfigure(line_buffering=True)
 
 CONFIG_DEFAULT = Path(__file__).resolve().parent.parent / "config.yaml"
 

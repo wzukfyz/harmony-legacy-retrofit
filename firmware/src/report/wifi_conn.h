@@ -12,4 +12,10 @@
  */
 int WifiConn_Connect(void);
 
+/**
+ * @brief  获取最近一次连接成功时的本机 IP
+ * @return IP 字符串；从未连接成功时为空字符串
+ */
+const char *WifiConn_GetIp(void);
+
 #endif
