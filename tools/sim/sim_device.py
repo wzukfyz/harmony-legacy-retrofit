@@ -6,7 +6,7 @@
 --alarm 时第 8 秒起温度拉到 850（超过阈值 800）并持续告警。
 
 运行：先激活项目 venv（../.venv/Scripts/Activate.ps1），再 python sim_device.py [config.yaml]
-      [--device 名称] [--interval 15] [--duration 0] [--alarm]
+      [--device 名称] [--ip 192.168.43.238] [--interval 15] [--duration 0] [--alarm]
 依赖：paho-mqtt>=2,<3  pyyaml
 """
 
@@ -35,6 +35,8 @@ def main():
     parser = argparse.ArgumentParser(description="模拟板卡 MQTT 数据源")
     parser.add_argument("config", nargs="?", default=str(CONFIG_DEFAULT))
     parser.add_argument("--device", default="模拟板卡 sim01")
+    parser.add_argument("--ip", default="192.168.43.238",
+                        help="上报中展示的设备 IP，默认与当前板端一致")
     parser.add_argument("--interval", type=int, default=15, help="心跳周期（秒）")
     parser.add_argument("--duration", type=int, default=0, help="运行时长（秒），0 = 一直运行")
     parser.add_argument("--alarm", action="store_true", help="第 8 秒起触发温度告警")
@@ -53,8 +55,9 @@ def main():
     def publish(topic, payload):
         client.publish(topic, json.dumps(payload, ensure_ascii=False))
 
-    publish(report_topic, {"device": args.device, "ip": "192.168.43.99", "boot": 1})
-    print("[sim] device={} interval={}s alarm={}".format(args.device, args.interval, args.alarm))
+    publish(report_topic, {"device": args.device, "ip": args.ip, "boot": 1})
+    print("[sim] device={} ip={} interval={}s alarm={}".format(
+        args.device, args.ip, args.interval, args.alarm))
 
     start = time.time()
     tick = 0
@@ -78,7 +81,7 @@ def main():
                 publish(alarm_topic if alarm else report_topic, payload)
 
             if last_heartbeat < 0 or elapsed - last_heartbeat >= args.interval - 0.5:
-                publish(report_topic, {"device": args.device, "ip": "192.168.43.99",
+                publish(report_topic, {"device": args.device, "ip": args.ip,
                                        "uptime": int(elapsed)})
                 last_heartbeat = elapsed
 

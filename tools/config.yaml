@@ -3,9 +3,9 @@
 # 环境：项目专属 venv（../.venv，Python 3.9）；先激活（..\.venv\Scripts\Activate.ps1），再运行：
 #   python modbus_sim\slave_rtu.py
 
-# 串口（USB-RS485 转接头；板卡到货后按设备管理器实际 COM 口修改）
+# 串口（USB-RS485 转接头；当前实测为 CH343 COM11，换电脑后按设备管理器复核）
 serial:
-  port: COM5
+  port: COM11
   baudrate: 9600
   parity: N
   stopbits: 1

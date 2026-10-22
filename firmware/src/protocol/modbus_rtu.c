@@ -9,6 +9,7 @@
 
 #include "hi_gpio.h"
 #include "hi_io.h"
+#include "hi_time.h"
 #include "hi_uart.h"
 
 #define MODBUS_FC_READ_HOLDING  0x03
@@ -73,9 +74,15 @@ static int ModbusRtu_Init(void)
     return (hi_uart_init(HI_UART_IDX_1, &attr, NULL) == 0) ? 0 : -1;
 }
 
-/* 发送一帧；使用带 DE/RE 的模块时，在发送前后切换收发方向 */
+/* 发送一帧；EN 高电平使能驱动器，发送完成后切回接收。
+ * hi_uart_write 返回时数据可能仍在 FIFO/移位寄存器中，需按帧长与波特率
+ * 等待末字节真正移出，否则提前拉低 EN 会截断帧尾。 */
 static void ModbusRtu_SendFrame(const uint8_t *frame, uint16_t len)
 {
+#ifdef APP_RS485_DE_PIN
+    uint32_t wait_us;
+#endif
+
 #ifdef APP_RS485_DE_PIN
     hi_gpio_set_ouput_val(APP_RS485_DE_PIN, HI_GPIO_VALUE1);
 #endif
@@ -83,6 +90,11 @@ static void ModbusRtu_SendFrame(const uint8_t *frame, uint16_t len)
     (void)hi_uart_write(HI_UART_IDX_1, frame, len);
 
 #ifdef APP_RS485_DE_PIN
+    /* 每字节按 10bit（起始位 + 8 数据位 + 停止位）估算，2ms 余量。
+     * 8 字节 @9600 约 10.3ms。 */
+    wait_us = ((uint32_t)len * 10000000U + APP_RS485_BAUDRATE - 1U) /
+              APP_RS485_BAUDRATE + 2000U;
+    hi_udelay(wait_us);
     hi_gpio_set_ouput_val(APP_RS485_DE_PIN, HI_GPIO_VALUE0);
 #endif
 }

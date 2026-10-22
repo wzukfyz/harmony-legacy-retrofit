@@ -10,13 +10,12 @@
 #define APP_PROFILE_DEMO        1
 /* #define APP_PROFILE_TEMPLATE 1 */
 
-/* RS485 传输：UART1 固定占用 IO0(TXD) / IO1(RXD)，接线见 docs/初版试行手册.md
- * TODO(rs485-bringup): 485 模块到货后按从设备手册核对波特率与校验位 */
+/* RS485 传输：UART1 固定使用 IO0(TXD) / IO1(RXD)，9600 8N1 已完成 MAX3485 联调。 */
 #define APP_RS485_BAUDRATE      9600
 
-/* RS485 收发方向控制：仅当转换模块带 DE/RE 引脚时启用（自动收发模块保持注释） */
-/* #define APP_RS485_DE_PIN      HI_IO_NAME_GPIO_8 */
-/* #define APP_RS485_DE_GPIO_FUN HI_IO_FUNC_GPIO_8_GPIO */
+/* RS485 收发方向控制：EN 高电平=发送（MAX3485 手动方向模块，EN 接 IO8） */
+#define APP_RS485_DE_PIN         HI_IO_NAME_GPIO_8
+#define APP_RS485_DE_GPIO_FUN    HI_IO_FUNC_GPIO_8_GPIO
 
 /* Wi-Fi（当前联调热点：iroha；换网络时同步修改） */
 #define APP_WIFI_SSID           "iroha"
